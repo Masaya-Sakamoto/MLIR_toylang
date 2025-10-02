@@ -1,36 +1,10 @@
-// .devcontainer/devcontainer.json
 {
-  "name": "MLIR Development Environment",
-  "build": {
-    "dockerfile": "../Dockerfile",
-    "context": ".."
-  },
-
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-vscode.cpptools",
-        "ms-vscode.cmake-tools",
-        "llvm-vs-code-extensions.vscode-mlir",
-        "ms-python.python"
-      ],
-      "settings": {
-        // ターミナルが自動的にNixシェルを起動するように設定
-        "terminal.integrated.profiles.linux": {
-          "nix-develop": {
-            "path": "nix",
-            "args": ["develop", "--command", "bash"],
-            "icon": "terminal-bash"
-          }
-        },
-        "terminal.integrated.defaultProfile.linux": "nix-develop"
-      }
-    }
-  },
-
-  // コンテナ内での作業ディレクトリ
-  "workspaceFolder": "/workspace",
-
-  // コンテナの実行ユーザー
-  "remoteUser": "root"
+    "name": "Debian 13 Dev Container",
+    "build": {
+        "dockerfile": "./Dockerfile"
+    },
+    "settings": {},
+    "extensions": [],
+    "forwardPorts": [],
+    "remoteUser": "vscode"
 }
