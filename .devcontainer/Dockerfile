@@ -18,6 +18,7 @@ RUN apt-get update && \
         lld \
         libclang-rt-dev \
         ccache \
+        iputils-ping \
         && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
