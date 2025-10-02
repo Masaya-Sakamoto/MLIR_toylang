@@ -5,6 +5,9 @@ FROM nixos/nix:latest
 RUN mkdir -p /etc/nix && \
     echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
 
+# VS Code Serverの依存関係であるglibcとlibstdc++(gccに含まれる)をコンテナにグローバルインストールする
+RUN nix profile install nixpkgs#glibc nixpkgs#gcc
+
 # 作業ディレクトリを作成
 WORKDIR /workspace
 

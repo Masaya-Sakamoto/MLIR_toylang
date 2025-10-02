@@ -15,9 +15,15 @@
         "ms-python.python"
       ],
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash",
-        // C/C++拡張機能にコンパイラのパスを教える
-        "C_Cpp.default.compilerPath": "/usr/bin/clang"
+        // ターミナルが自動的にNixシェルを起動するように設定
+        "terminal.integrated.profiles.linux": {
+          "nix-develop": {
+            "path": "nix",
+            "args": ["develop", "--command", "bash"],
+            "icon": "terminal-bash"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "nix-develop"
       }
     }
   },
