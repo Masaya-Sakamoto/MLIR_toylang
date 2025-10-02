@@ -1,0 +1,10 @@
+{
+    "name": "Debian 13 Dev Container",
+    "build": {
+        "dockerfile": "./Dockerfile"
+    },
+    "settings": {},
+    "extensions": [],
+    "forwardPorts": [],
+    "remoteUser": "vscode"
+}
