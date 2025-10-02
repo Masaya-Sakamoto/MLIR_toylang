@@ -11,6 +11,7 @@ RUN apt-get update && \
         curl \
         vim \
         ca-certificates \
+        cmake \
         && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
