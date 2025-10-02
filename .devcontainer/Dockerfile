@@ -14,6 +14,10 @@ RUN apt-get update && \
         ca-certificates \
         cmake \
         ninja-build \
+        clang \
+        lld \
+        libclang-rt-dev \
+        ccache \
         && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
