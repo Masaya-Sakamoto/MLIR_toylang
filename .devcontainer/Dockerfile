@@ -9,9 +9,11 @@ RUN apt-get update && \
         build-essential \
         git \
         curl \
-        vim \
+        neovim \
+        python3 \
         ca-certificates \
         cmake \
+        ninja-build \
         && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
