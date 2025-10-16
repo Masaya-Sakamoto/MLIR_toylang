@@ -16,7 +16,7 @@
         }
     },
     "forwardPorts": [],
-    "remoteUser": "ubuntu",
+    "remoteUser": "vscode",
     "mounts": [
         "source=${env:HOME}/.gnupg,target=/home/vscode/.gnupg,type=bind,consistency=cached"
     ],
@@ -24,5 +24,5 @@
         "--env",
         "GPG_TTY=${containerEnv:GPG_TTY}"
     ],
-    "postCreateCommand": "/bin/sh .devcontainer/postCreateScript.sh"
+    "postCreateCommand": "/bin/bash .devcontainer/postCreateScript.sh"
 }

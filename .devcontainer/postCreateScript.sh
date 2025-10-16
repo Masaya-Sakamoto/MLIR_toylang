@@ -4,7 +4,7 @@ WORKSPACE_DIR=$(pwd)
 
 # Clone LLVM Project if not already present or empty
 if [ ! -d "llvm-project" ] || [ -z "$(ls -A llvm-project)" ]; then
-    git clone https://github.com/llvm/llvm-project.git -b release/21.x;
+    git clone https://github.com/llvm/llvm-project.git -b release/21.x --depth 1;
 fi
 
 # Build LLVM if not already built
@@ -14,7 +14,7 @@ if [ ! -d "llvm-project/build" ] || [ -z "$(ls -A llvm-project/build)" ]; then
     cmake -G Ninja ../llvm \
    -DLLVM_ENABLE_PROJECTS=mlir \
    -DLLVM_BUILD_EXAMPLES=ON \
-   -DLLVM_TARGETS_TO_BUILD="Native;NVPTX;AMDGPU" \
+   -DLLVM_TARGETS_TO_BUILD="Native" \
    -DCMAKE_BUILD_TYPE=Release \
    -DLLVM_ENABLE_ASSERTIONS=ON \
    -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_ENABLE_LLD=ON \
