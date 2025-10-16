@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/base:dev-debian13
+FROM mcr.microsoft.com/devcontainers/base:debian13
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -9,6 +9,7 @@ RUN apt-get update && \
         build-essential \
         git \
         curl \
+        wget \
         neovim \
         python3 \
         ca-certificates \
