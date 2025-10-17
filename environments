@@ -7,3 +7,10 @@ export LLVM_REPO_URL="https://github.com/llvm/llvm-project.git"
 export LLVM_VERSION='21.x'
 export LLVM_CHECKOUT="release/$LLVM_VERSION"
 export CUSTOM_LLVM_INSTALL_PREFIX="/usr/local/llvm-$LLVM_VERSION"
+
+# BUILD HARDWARE REQUIREMENTS
+export BUILD_NUM_JOBS=4
+
+# 今は使っていない
+export BUILD_RAM_GB=$((4 * BUILD_NUM_JOBS))
+export BUILD_DISK_GB=-1
