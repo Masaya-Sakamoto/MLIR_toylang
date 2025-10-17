@@ -25,3 +25,6 @@ RUN apt-get update && \
 
 # Set working directory
 WORKDIR /workspace
+
+# mdkir: LLVM source directory
+RUN mkdir -p /home/vscode/.local/sources

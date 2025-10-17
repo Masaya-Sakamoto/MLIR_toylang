@@ -25,7 +25,7 @@ cmake -G Ninja ../llvm \
    -DLLVM_PARALLES_COMPILE_JOBS=4 \
    -DLLVM_PARALLEL_LINK_JOBS=1 \
    -DLLVM_BUILD_EXAMPLES=ON \
-   -DLLVM_TARGETS_TO_BUILD="x86_64" \
+   -DLLVM_TARGETS_TO_BUILD="X86" \
    -DCMAKE_BUILD_TYPE=Release \
    -DLLVM_ENABLE_ASSERTIONS=ON \
    -DLLVM_CCACHE_BUILD=ON \
@@ -35,6 +35,17 @@ cmake -G Ninja ../llvm \
    -DCMAKE_CXX_COMPILER=clang++ \
    -DLLVM_ENABLE_LLD=ON
 
+# Check cmake configuration result and exit on failure
+if [ $? -ne 0 ]; then
+    echo "CMake configuration failed. Cleaning up build directory..."
+    cd ..
+    rm -rf build
+    exit 1
+fi
+
+# Build and test LLVM
 cmake --build .
 cmake --build . --target check-mlir
+
+# Install LLVM
 sudo cmake -DCMAKE_INSTALL_PREFIX=$CUSTOM_LLVM_INSTALL_PREFIX -P cmake_install.cmake

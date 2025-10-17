@@ -21,12 +21,13 @@ echo "=================================="
 if [ ! -d "$LLVM_DIR" ] || [ -z "$(ls -A $LLVM_DIR/.git)" ]; then
     git clone $LLVM_REPO_URL -b $LLVM_CHECKOUT --depth 1 $LLVM_DIR;
     # Check if not `.git` exists and if the clone failed.
-    if [ -d "$LLVM_DIR/.git" ]; then
+    if [ -d ! "$LLVM_DIR/.git" ]; then
         rm -rf $LLVM_DIR;
         echo "Error: Failed to clone LLVM repository.";
         exit 1;
     fi
 else
+    cd $LLVM_DIR;
     git fetch;
     git checkout $LLVM_CHECKOUT;
     git pull;
@@ -38,6 +39,8 @@ if [ ! -d "$LLVM_BUILD_DIR" ] || [ -z "$(ls -A $LLVM_BUILD_DIR)" ]; then
     cd $LLVM_BUILD_DIR;
     ${LLVM_BUILD_SCRIPT}
     cd $WORKSPACE_DIR;
+else
+    echo "LLVM build directory already exists and is not empty. Skipping build.";
 fi
 
 # # Add LLVM tools to PATH if not already present
