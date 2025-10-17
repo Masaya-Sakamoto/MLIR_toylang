@@ -1,27 +1,28 @@
 #!/bin/bash
 
 WORKSPACE_DIR=$(pwd)
+DEVCONTAINER_DIR="$WORKSPACE_DIR/.devcontainer"
+LLVM_DIR='~/llvm-project'
+LLVM_BUILD_DIR="$LLVM_DIR/build"
+LLVM_BUILD_SCRIPT="$DEVCONTAINER_DIR/buildLLVM.sh"
+LLVM_REPO_URL="https://github.com/llvm/llvm-project.git"
+LLVM_CHECKOUT="release/21.x"
 
 # Clone LLVM Project if not already present or empty
-if [ ! -d "llvm-project" ] || [ -z "$(ls -A llvm-project)" ]; then
-    git clone https://github.com/llvm/llvm-project.git -b release/21.x --depth 1;
+if [ ! -d "$LLVM_DIR" ] || [ -z "$(ls -A $LLVM_DIR)" ]; then
+    git clone $LLVM_REPO_URL -b $LLVM_CHECKOUT --depth 1;
+else
+    git fetch;
+    git checkout $LLVM_CHECKOUT;
+    git pull;
 fi
 
 # Build LLVM if not already built
-if [ ! -d "llvm-project/build" ] || [ -z "$(ls -A llvm-project/build)" ]; then
-    mkdir -p llvm-project/build;
-    cd llvm-project/build;
-    cmake -G Ninja ../llvm \
-   -DLLVM_ENABLE_PROJECTS=mlir \
-   -DLLVM_BUILD_EXAMPLES=ON \
-   -DLLVM_TARGETS_TO_BUILD="Native" \
-   -DCMAKE_BUILD_TYPE=Release \
-   -DLLVM_ENABLE_ASSERTIONS=ON \
-   -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_ENABLE_LLD=ON \
-   -DLLVM_CCACHE_BUILD=ON \
-   -DLLVM_USE_SANITIZER="Address;Undefined";
-   ninja;
-   cd ../..;
+if [ ! -d "$LLVM_BUILD_DIR" ] || [ -z "$(ls -A $LLVM_BUILD_DIR)" ]; then
+    mkdir -p $LLVM_BUILD_DIR;
+    cd $LLVM_BUILD_DIR;
+    ${LLVM_BUILD_SCRIPT};
+    cd ../..;
 fi
 
 # Add LLVM tools to PATH if not already present
