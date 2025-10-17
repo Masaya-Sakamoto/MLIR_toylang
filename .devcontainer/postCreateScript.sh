@@ -1,17 +1,31 @@
 #!/bin/bash
 
-WORKSPACE_DIR=$(pwd)
-DEVCONTAINER_DIR="$WORKSPACE_DIR/.devcontainer"
-LLVM_DIR='~/llvm-project'
-LLVM_BUILD_DIR="$LLVM_DIR/build"
-LLVM_BUILD_SCRIPT="$DEVCONTAINER_DIR/buildLLVM.sh"
-LLVM_REPO_URL="https://github.com/llvm/llvm-project.git"
-LLVM_VERSION='21.x'
-LLVM_CHECKOUT="release/$LLVM_VERSION"
+# Set environment variable
+source environments
+
+# Print environment variables for verification
+echo "====== postCreateScript.sh ======="
+echo "WORKSPACE_DIR: $WORKSPACE_DIR"
+echo "DEVCONTAINER_DIR: $DEVCONTAINER_DIR"
+echo "LLVM_DIR: $LLVM_DIR"
+echo "LLVM_BUILD_DIR: $LLVM_BUILD_DIR"
+echo "LLVM_BUILD_SCRIPT: $LLVM_BUILD_SCRIPT"
+echo "LLVM_REPO_URL: $LLVM_REPO_URL"
+echo "LLVM_VERSION: $LLVM_VERSION"
+echo "LLVM_CHECKOUT: $LLVM_CHECKOUT"
+echo "install prefix: $CUSTOM_LLVM_INSTALL_PREFIX"
+echo "=================================="
+
 
 # Clone LLVM Project if not already present or empty
-if [ ! -d "$LLVM_DIR" ] || [ -z "$(ls -A $LLVM_DIR)" ]; then
-    git clone $LLVM_REPO_URL -b $LLVM_CHECKOUT --depth 1;
+if [ ! -d "$LLVM_DIR" ] || [ -z "$(ls -A $LLVM_DIR/.git)" ]; then
+    git clone $LLVM_REPO_URL -b $LLVM_CHECKOUT --depth 1 $LLVM_DIR;
+    # Check if not `.git` exists and if the clone failed.
+    if [ -d "$LLVM_DIR/.git" ]; then
+        rm -rf $LLVM_DIR;
+        echo "Error: Failed to clone LLVM repository.";
+        exit 1;
+    fi
 else
     git fetch;
     git checkout $LLVM_CHECKOUT;
@@ -22,7 +36,7 @@ fi
 if [ ! -d "$LLVM_BUILD_DIR" ] || [ -z "$(ls -A $LLVM_BUILD_DIR)" ]; then
     mkdir -p $LLVM_BUILD_DIR;
     cd $LLVM_BUILD_DIR;
-    ${LLVM_BUILD_SCRIPT} -llvm_version $LLVM_VERSION;
+    ${LLVM_BUILD_SCRIPT}
     cd $WORKSPACE_DIR;
 fi
 

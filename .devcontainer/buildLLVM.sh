@@ -1,27 +1,24 @@
 #!/bin/bash
 
-# get llvm version from input arguments
-# example: ./buildLLVM.sh -llvm_version 21.x
-while [[ $# -gt 0 ]]; do
-    key="$1"
-    case $key in
-        -llvm_version)
-        LLVM_VERSION="$2"
-        shift # past argument
-        shift # past value
-        ;;
-        *)    # unknown option
-        shift # past argument
-        ;;
-    esac
-done
+source $WORKSPACE_DIR/environments
+
+# Print environment variables for verification
+echo "========== buildLLVM.sh =========="
+echo "WORKSPACE_DIR: $WORKSPACE_DIR"
+echo "DEVCONTAINER_DIR: $DEVCONTAINER_DIR"
+echo "LLVM_DIR: $LLVM_DIR"
+echo "LLVM_BUILD_DIR: $LLVM_BUILD_DIR"
+echo "LLVM_BUILD_SCRIPT: $LLVM_BUILD_SCRIPT"
+echo "LLVM_REPO_URL: $LLVM_REPO_URL"
+echo "LLVM_VERSION: $LLVM_VERSION"
+echo "LLVM_CHECKOUT: $LLVM_CHECKOUT"
+echo "install prefix: $CUSTOM_LLVM_INSTALL_PREFIX"
+echo "=================================="
 
 echo "Building LLVM version: $LLVM_VERSION"
 
 # Build LLVM with MLIR and specific configurations
 # source: https://www.youtube.com/watch?v=KYaojNbujKM&list=PLlONLmJCfHTo9WYfsoQvwjsa5ZB6hjOG5&index=2
-
-CUSTOM_LLVM_INSTALL_PREFIX="/usr/local/llvm-$LLVM_VERSION"
 
 cmake -G Ninja ../llvm \
    -DCMAKE_INSTALL_PREFIX=$CUSTOM_LLVM_INSTALL_PREFIX \
