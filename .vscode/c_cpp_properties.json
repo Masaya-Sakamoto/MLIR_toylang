@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/toy/Ch1/include/**",
+                "${workspaceFolder}/toy/Ch2/include/**",
+                "${workspaceFolder}/toy/Ch3/include/**",
+                "${workspaceFolder}/toy/Ch4/include/**",
+                "${workspaceFolder}/toy/Ch5/include/**",
+                "${workspaceFolder}/toy/Ch6/include/**",
+                "${workspaceFolder}/toy/Ch7/include/**",
+                "/usr/local/llvm-21.x/include/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}
