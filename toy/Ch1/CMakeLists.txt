@@ -4,54 +4,37 @@ project(ToyCh1 CXX C)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 1. 最初に MLIR を検索します
-# これにより MLIR::Support ターゲットと、
-# MLIR が依存する LLVM コンポーネントリスト (MLIR_LLVM_COMPONENTS_TO_LINK) が定義されます
-find_package(MLIR REQUIRED CONFIG
-    COMPONENTS
-        Support
-)
+find_package(LLVM REQUIRED CONFIG)
+find_package(MLIR REQUIRED CONFIG)
 
-# 2. 次に LLVM を検索します
-# ★★★ ここが最重要ポイントです ★★★
-# COMPONENTS には、MLIRが必要とするもの (${MLIR_LLVM_COMPONENTS_TO_LINK}) と、
-# Toy (Ch1) が直接必要とするもの (Support) の両方を含めます。
-find_package(LLVM REQUIRED CONFIG
-    COMPONENTS
-        Support
-        ${MLIR_LLVM_COMPONENTS_TO_LINK}
-)
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
-# LLVM/MLIRのインクルードパスを追加します
-# (MLIR と LLVM の両方から取得します)
-include_directories(${MLIR_INCLUDE_DIRS})
+# LLVMの定義とインクルードパスを追加
 include_directories(${LLVM_INCLUDE_DIRS})
+include_directories(${MLIR_INCLUDE_DIRS})
+separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
+add_definitions(${LLVM_DEFINITIONS_LIST})
 
-# コンパイル定義（-D... フラグなど）を追加します
-add_compile_definitions(${MLIR_DEFINITIONS})
-add_compile_definitions(${LLVM_DEFINITIONS})
-
-# プロジェクトローカルの "include" ディレクトリをインクルードパスに追加します
+# プロジェクトローカルの "include" ディレクトリ
 include_directories(include)
 
-# 実行ファイル "toyc-ch1" を定義します
+# 実行ファイルの定義
 add_executable(toyc-ch1
   toyc.cpp
   parser/AST.cpp
 )
 
-# 必要なライブラリをリンクします
+# LLVM/MLIRのコンポーネントを使用してリンク
+llvm_map_components_to_libnames(llvm_libs Support Core)
+
 target_link_libraries(toyc-ch1
   PRIVATE
-    # Toyのヘッダ (AST.h, Lexer.h) が llvm/ADT/StringRef などを
-    # 直接インクルードしているため、LLVM::Support が必要です。
-    LLVM::Support
-
-    # 元々 MLIRSupport にリンクしていたため、MLIR::Support が必要です。
-    MLIR::Support
+    ${llvm_libs}
 )
 
-# LLVMがRTTIなしでビルドされている場合、プロジェクト側もRTTIを無効にする必要があります
+# LLVMがRTTIなしの場合
 if(NOT LLVM_ENABLE_RTTI)
-  set_target_properties(toyc-ch1 PROPERTIES COMPILE_FLAGS "-fno-rtti")
+  message(STATUS "LLVM not enabled RTTI")
+  target_compile_options(toyc-ch1 PRIVATE -fno-rtti)
 endif()
