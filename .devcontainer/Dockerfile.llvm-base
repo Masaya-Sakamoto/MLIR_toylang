@@ -1,0 +1,53 @@
+FROM debian:trixie-slim AS llvm-base
+
+# Set Environment Variables
+ARG LLVM_VERSION="21.x"
+ENV LLVM_VERSION=${LLVM_VERSION}
+ENV LLVM_HOME="/llvm-src"
+ARG LLVM_REPO_NAME="llvm-project"
+ENV LLVM_SRC_DIR="${LLVM_HOME}/${LLVM_REPO_NAME}"
+ENV LLVM_INSTALL_PREFIX="/usr/local/llvm-${LLVM_VERSION}"
+ARG BUILD_NUM_JOBS=4
+
+
+# Avoid interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install basic development tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        git \
+        python3 \
+        cmake \
+        ninja-build \
+        clang \
+        lld \
+        libclang-rt-dev \
+        ccache \
+        && rm -rf /var/lib/apt/lists/*
+
+# LLVM Build Sections
+WORKDIR ${LLVM_HOME}
+RUN git clone --depth=1 --branch=release/${LLVM_VERSION} https://github.com/llvm/llvm-project.git ${LLVM_REPO_NAME}
+WORKDIR ${LLVM_SRC_DIR}
+
+# LLVM Build using ccache and ninja
+RUN --mount=type=ccache,target=/root/.ccache \
+    cmake -B build \
+        -G Ninja \
+        -DCMAKE_INSTALL_PREFIX=${LLVM_INSTALL_PREFIX} \
+        -DLLVM_PARALLEL_COMPILE_JOBS=${BUILD_NUM_JOBS} \
+        -DLLVM_PARALLEL_LINK_JOBS=1 \
+        -DLLVM_BUILD_EXAMPLES=ON \
+        -DLLVM_TARGETS_TO_BUILD="AArch64;ARM;RISCV;X86;BPF;NVPTX;AMDGPU;WebAssembly;" \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -DLLVM_ENABLE_ASSERTIONS=ON \
+        -DLLVM_CCACHE_BUILD=ON \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+        -DLLVM_ENABLE_PROJECTS='clang;lldb;lld;clang-tools-extra;compiler-rt,' \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DLLVM_ENABLE_LLD=ON \
+        && cmake --build ./build \
+        && cmake --install ./build
