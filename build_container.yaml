@@ -2,7 +2,7 @@ services:
   llvm-base:
     build:
       context: .
-      dockerfile: Dockerfile.llvm-base
+      dockerfile: ./docker/Dockerfile.llvm-base
     image: llvm-base:latest
 
   MLIR-base:
