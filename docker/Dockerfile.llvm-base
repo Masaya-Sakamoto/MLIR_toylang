@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential git python3 cmake ninja-build clang lld libclang-rt-dev ccache \
-    libtinfo6 libxml2 libzstd1 libncurses6 \
+    libtinfo6 libxml2 libzstd1 libncurses6 ca-certificates\
     && rm -rf /var/lib/apt/lists/*
 
 # =================================================================
@@ -44,12 +44,12 @@ ARG COMMON_CMAKE_ARGS=" \
     -DLLVM_TARGETS_TO_BUILD=X86"
 
 # (1) CMake 設定 (LLVM/Clangのみ)
-RUN --mount=type=ccache,target=/root/.ccache \
-    cmake -B build ${COMMON_CMAKE_ARGS} \
+RUN --mount=type=cache,target=/root/.ccache \
+    cmake -B build ${COMMON_CMAKE_ARGS} -S llvm \
     -DLLVM_ENABLE_PROJECTS='clang;lld;clang-tools-extra'
 
 # (2) ビルド (LLVM/Clangのみ)
-RUN --mount=type=ccache,target=/root/.ccache \
+RUN --mount=type=cache,target=/root/.ccache \
     cmake --build ./build --parallel ${BUILD_NUM_JOBS}
 
 # (3) インストール (LLVM/Clangのみ)
