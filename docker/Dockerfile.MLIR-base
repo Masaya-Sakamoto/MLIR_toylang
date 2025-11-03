@@ -4,13 +4,13 @@
 FROM llvm-base AS mlir-base
 # (1) CMake 設定 (MLIRを *追加*)
 #     ! 注意: 'clang;lld...' も含めた完全なリストを渡す必要があります
-RUN --mount=type=ccache,target=/root/.ccache \
-    cmake -B build ${COMMON_CMAKE_ARGS} \
+RUN --mount=type=cache,target=/root/.ccache \
+    cmake -B build ${COMMON_CMAKE_ARGS} -S llvm\
     -DLLVM_ENABLE_PROJECTS='clang;lld;clang-tools-extra;mlir'
 
 # (2) ビルド (MLIRの差分のみ)
 #     Ninjaが差分（mlir）だけをビルドしてくれます
-RUN --mount=type=ccache,target=/root/.ccache \
+RUN --mount=type=cache,target=/root/.ccache \
     cmake --build ./build --parallel ${BUILD_NUM_JOBS}
 
 # (3) インストール (すべてを再インストール)
