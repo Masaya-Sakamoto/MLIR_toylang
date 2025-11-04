@@ -1,0 +1,89 @@
+# =================================================================
+# Stage 1: 依存関係 (全ステージで共通)
+# =================================================================
+FROM debian:trixie-slim AS base
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential git python3 cmake ninja-build clang lld libclang-rt-dev ccache \
+    libtinfo6 libxml2 libzstd1 libncurses6 ca-certificates\
+    && rm -rf /var/lib/apt/lists/*
+
+# =================================================================
+# Stage 2: ソースコード (全ビルドで共通)
+# =================================================================
+FROM base AS source
+ENV LLVM_VERSION="21.x"
+ARG LLVM_BRANCH="release/${LLVM_VERSION}"
+ENV LLVM_HOME="/llvm-src"
+ARG LLVM_REPO_NAME="llvm-project"
+ENV LLVM_SRC_DIR="${LLVM_HOME}/${LLVM_REPO_NAME}"
+ENV LLVM_INSTALL_PREFIX="/usr/local/llvm-${LLVM_VERSION}"
+ARG BUILD_NUM_JOBS=4
+
+WORKDIR ${LLVM_HOME}
+RUN git clone --depth=1 --branch=${LLVM_BRANCH} https://github.com/llvm/llvm-project.git ${LLVM_REPO_NAME}
+WORKDIR ${LLVM_SRC_DIR}
+
+# =================================================================
+# Stage 3: llvm-base (LLVM/Clangのビルド + インストール)
+# =================================================================
+FROM source AS llvm-base
+# 共通のCMake引数を定義
+ARG COMMON_CMAKE_ARGS=" \
+    -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=${LLVM_INSTALL_PREFIX} \
+    -DLLVM_PARALLEL_COMPILE_JOBS=${BUILD_NUM_JOBS} \
+    -DLLVM_PARALLEL_LINK_JOBS=1 \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DLLVM_ENABLE_ASSERTIONS=ON \
+    -DLLVM_CCACHE_BUILD=ON \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DLLVM_ENABLE_LLD=ON \
+    -DLLVM_TARGETS_TO_BUILD=X86"
+
+# (1) CMake 設定 (LLVM/Clangのみ)
+RUN --mount=type=cache,target=/root/.ccache \
+    cmake -B build ${COMMON_CMAKE_ARGS} -S llvm \
+    -DLLVM_ENABLE_PROJECTS='clang;lld;clang-tools-extra'
+
+# (2) ビルド (LLVM/Clangのみ)
+RUN --mount=type=cache,target=/root/.ccache \
+    cmake --build ./build --parallel ${BUILD_NUM_JOBS}
+
+# (3) インストール (LLVM/Clangのみ)
+RUN cmake --install ./build
+
+# =================================================================
+# Stage 4: mlir-base (MLIRの *追加* ビルド + インストール)
+# =================================================================
+FROM llvm-base AS mlir-base
+# (1) CMake 設定 (MLIRを *追加*)
+#     ! 注意: 'clang;lld...' も含めた完全なリストを渡す必要があります
+RUN --mount=type=cache,target=/root/.ccache \
+    cmake -B build ${COMMON_CMAKE_ARGS} -S llvm\
+    -DLLVM_ENABLE_PROJECTS='clang;lld;clang-tools-extra;mlir'
+
+# (2) ビルド (MLIRの差分のみ)
+#     Ninjaが差分（mlir）だけをビルドしてくれます
+RUN --mount=type=cache,target=/root/.ccache \
+    cmake --build ./build --parallel ${BUILD_NUM_JOBS}
+
+# (3) インストール (すべてを再インストール)
+#     (注: MLIRだけをインストールするのは難しいため、全体を再インストールするのが安全)
+RUN cmake --install ./build
+
+# =================================================================
+# Stage 6: mlir-dev (クリーンな最終イメージ)
+# =================================================================
+FROM base AS mlir-dev
+# RUN apt-get... (baseからランタイムライブラリのみコピーしても良い)
+ENV LLVM_VERSION="21.x"
+ENV LLVM_INSTALL_PREFIX="/usr/local/llvm-${LLVM_VERSION}"
+ENV PATH="${LLVM_INSTALL_PREFIX}/bin:${PATH}"
+ENV LD_LIBRARY_PATH="${LLVM_INSTALL_PREFIX}/lib:${LD_LIBRARY_PATH}"
+
+# mlir-base *から* インストール結果のみコピー
+COPY --from=mlir-base ${LLVM_INSTALL_PREFIX} ${LLVM_INSTALL_PREFIX}
+WORKDIR /work
