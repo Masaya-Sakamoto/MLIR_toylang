@@ -1,4 +1,4 @@
-FROM mlir-dev as mlirdev
+FROM mlir-dev AS mlirdev
 FROM mcr.microsoft.com/devcontainers/base:debian13
 COPY --chmod=755 entrypoint.sh /
 

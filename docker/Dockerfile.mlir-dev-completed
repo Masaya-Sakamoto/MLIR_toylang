@@ -81,9 +81,26 @@ FROM base AS mlir-dev
 # RUN apt-get... (baseからランタイムライブラリのみコピーしても良い)
 ENV LLVM_VERSION="21.x"
 ENV LLVM_INSTALL_PREFIX="/usr/local/llvm-${LLVM_VERSION}"
-ENV PATH="${LLVM_INSTALL_PREFIX}/bin:${PATH}"
-ENV LD_LIBRARY_PATH="${LLVM_INSTALL_PREFIX}/lib:${LD_LIBRARY_PATH}"
 
 # mlir-base *から* インストール結果のみコピー
 COPY --from=mlir-base ${LLVM_INSTALL_PREFIX} ${LLVM_INSTALL_PREFIX}
+
+# 1. 実行時ライブラリパスの設定 (ldconfig)
+#    .so ファイル（動的ライブラリ）を実行時に見つけられるようにします。
+RUN echo "${LLVM_INSTALL_PREFIX}/lib" > /etc/ld.so.conf.d/llvm.conf \
+    && ldconfig
+
+# 2. ビルド時・実行時の環境変数設定
+ENV PATH="${LLVM_INSTALL_PREFIX}/bin:${PATH}"
+# C言語のインクルードパス ( #include <...> )
+ENV C_INCLUDE_PATH="${LLVM_INSTALL_PREFIX}/include"
+# C++言語のインクルードパス
+ENV CPLUS_INCLUDE_PATH="${LLVM_INSTALL_PREFIX}/include"
+# ビルド時(リンク時)のライブラリ検索パス ( -L... )
+ENV LIBRARY_PATH="${LLVM_INSTALL_PREFIX}/lib"
+# 実行時のライブラリ検索パス (ldconfigが使えない/使いたくない場合)
+ENV LD_LIBRARY_PATH="${LLVM_INSTALL_PREFIX}/lib"
+# pkg-config を使う場合
+ENV PKG_CONFIG_PATH="${LLVM_INSTALL_PREFIX}/lib/pkgconfig"
+
 WORKDIR /work
