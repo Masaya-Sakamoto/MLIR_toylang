@@ -8,6 +8,7 @@ RUN apt-get update && \
     neovim \
     ca-certificates \
     cmake \
+    gdb \
     && rm -rf /var/lib/apt/lists/*
 
 RUN cd ${LLVM_INSTALL_PREFIX} && ldconfig
