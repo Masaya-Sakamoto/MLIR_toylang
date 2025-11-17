@@ -3,3 +3,4 @@ llvm-project/*
 
 # build directory
 toy/*/bin/*
+toy/*/
