@@ -9,9 +9,12 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/toy/Ch1/bin/toyc-ch1",
-            "args": [],
+            "args": [
+                "--emit=ast",
+                "example1.toy"
+            ],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/toy/Ch1/bin/",
+            "cwd": "${workspaceFolder}/examples",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
