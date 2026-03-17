@@ -1,30 +1,17 @@
-FROM mcr.microsoft.com/devcontainers/base:debian13
+FROM mlir-dev:latest AS mlir-dev-base
+FROM mcr.microsoft.com/devcontainers/base:debian13 AS devcontainer
+COPY --chmod=755 entrypoint.sh /
+COPY --from=mlir-dev-base /usr/local/llvm /usr/local/llvm
 
-# Avoid interactive prompts during package installation
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install basic development tools
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        build-essential \
-        git \
-        curl \
-        wget \
-        neovim \
-        python3 \
-        ca-certificates \
-        cmake \
-        ninja-build \
-        clang \
-        lld \
-        libclang-rt-dev \
-        ccache \
-        iputils-ping \
-        gh \
-        && rm -rf /var/lib/apt/lists/*
+    neovim \
+    ca-certificates \
+    cmake \
+    gdb \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+RUN cd ${LLVM_INSTALL_PREFIX} && ldconfig
+ENV PATH="/usr/local/llvm/bin:${PATH}"
+
 WORKDIR /workspace
-
-# mdkir: LLVM source directory
-RUN mkdir -p /home/vscode/.local/sources

@@ -1,0 +1,14 @@
+services:
+  llvm-base:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.llvm-base
+    image: llvm-base:latest
+
+  MLIR-base:
+    build:
+      context: .
+      dockerfile: Dockerfile.MLIR-base
+    image: mlir-base:latest
+    depends_on:
+      - llvm-base

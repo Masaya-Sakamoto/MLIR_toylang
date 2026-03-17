@@ -17,9 +17,6 @@ echo "=================================="
 
 echo "Building LLVM version: $LLVM_VERSION"
 
-# Build LLVM with MLIR and specific configurations
-# source: https://www.youtube.com/watch?v=KYaojNbujKM&list=PLlONLmJCfHTo9WYfsoQvwjsa5ZB6hjOG5&index=2
-
 cmake -G Ninja ../llvm \
    -DCMAKE_INSTALL_PREFIX=$CUSTOM_LLVM_INSTALL_PREFIX \
    -DLLVM_PARALLEL_COMPILE_JOBS=$BUILD_NUM_JOBS \

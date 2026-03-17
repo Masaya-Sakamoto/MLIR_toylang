@@ -1,8 +1,8 @@
-export WORKSPACE_DIR=$(pwd)
-export DEVCONTAINER_DIR="$WORKSPACE_DIR/.devcontainer"
-export LLVM_DIR='/home/vscode/llvm-project'
+export WORKSPACE_DIR=/workspaces
+export CONTAINER_SCRIPTS_DIR="/container-scripts"
+export LLVM_DIR='/llvm-src'
 export LLVM_BUILD_DIR="$LLVM_DIR/build"
-export LLVM_BUILD_SCRIPT="$DEVCONTAINER_DIR/buildLLVM.sh"
+export LLVM_BUILD_SCRIPT="/buildLLVM.sh"
 export LLVM_REPO_URL="https://github.com/llvm/llvm-project.git"
 export LLVM_VERSION='21.x'
 export LLVM_CHECKOUT="release/$LLVM_VERSION"

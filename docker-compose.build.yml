@@ -1,0 +1,8 @@
+services:
+  mlir-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mlir-dev-completed
+      args:
+        - BUILD_NUM_JOBS=4
+    image: mlir-dev:latest
